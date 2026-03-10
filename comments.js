@@ -1,19 +1,34 @@
-// create a web server using the express
-const express = require('express');
-const app = express();
-const port = 3000;
+// create a web server
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
-// create a route for the home page
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+const server = http.createServer((req, res) => {
+  if (req.url === '/') {
+    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {      if (err) {
+        res.writeHead(500);
+        res.end('Error loading index.html');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(data);
+      }
+    });
+  } else if (req.url === '/comments') {
+    fs.readFile(path.join(__dirname, 'comments.json'), (err, data) => {
+      if (err) {
+        res.writeHead(500);
+        res.end('Error loading comments.json');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(data);
+      }
+    });
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
 });
 
-// create a route for the comments page
-app.get('/comments', (req, res) => {
-  res.send('This is the comments page');
-});
-
-// start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+server.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
 });
